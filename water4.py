@@ -14,6 +14,7 @@ class PumpSystem(object):
         self.sensor_pin = sensor_pin
         self.control_pin = control_pin
         self.consecutive_water_count = 0
+        self.is_pumping = False
 
         # Setup I/Os
         GPIO.setup(sensor_pin, GPIO.IN)
@@ -22,21 +23,33 @@ class PumpSystem(object):
         GPIO.output(control_pin, GPIO.LOW)
 
     def get_status(self):
-        return GPIO.input(self.sensor_pin)
+        wet = GPIO.input(self.sensor_pin)
+        print('Read status:', wet)
+        return wet
 
     def pump_on(self):
+        if self.is_pumping:
+            # Pump is already on; nothing to do
+            return
+
         f = open("last_watered.txt", "a")
         f.write("Pump {} ON at {}".format(self.pump_id, datetime.datetime.now()))
         f.close()
         GPIO.output(self.control_pin, GPIO.HIGH)
         self.consecutive_water_count += 1
+        self.is_pumping = True
 
     def pump_off(self):
+        if not self.is_pumping:
+            # Pump is already off; nothing to do
+            return
+
         f = open("last_watered.txt", "a")
         f.write("Pump {} OFF at {}".format(self.pump_id, datetime.datetime.now()))
         f.close()
         GPIO.output(self.control_pin, GPIO.LOW)
         self.consecutive_water_count = 0
+        self.is_pumping = False
 
 # ------------------------- End of class PumpSystem -------------------------
 
