@@ -17,25 +17,57 @@ sensor4=33
 
 init = False
 
-GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
+# There will be one instance of PumpSystem for each pair of
+# sensor and control pins, and each instance contains the
+# current state (e.g. how long it's been turned on).
 
-# Configures one sensor and one control pin.
-# Output LOW on the control pin so the pump native state is OFF
+class PumpSystem(object):
+    def __init__(self, pump_id, sensor_pin, control_pin):
+        self.pump_id = pump_id
+        self.sensor_pin = sensor_pin
+        self.control_pin = control_pin
+        self.consecutive_water_count = 0
 
-def setup_one(sensor_pin, control_pin):
-    GPIO.setup(sensor_pin, GPIO.IN)
-    GPIO.setup(control_pin, GPIO.OUT)
-    GPIO.output(control_pin, GPIO.LOW)
+        # Setup I/Os
+        GPIO.setup(sensor_pin, GPIO.IN)
+        GPIO.setup(control_pin, GPIO.OUT)
+        # Turn the pump off
+        GPIO.output(control_pin, GPIO.LOW)
+
+    def get_status(self):
+        return GPIO.input(self.sensor_pin)
+
+    def pump_on(self):
+        f = open("last_watered.txt", "a")
+        f.write("Pump {} ON at {}".format(self.pump_id, datetime.datetime.now()))
+        f.close()
+        GPIO.output(self.control_pin, GPIO.HIGH)
+        self.consecutive_water_count += 1
+
+    def pump_off(self):
+        f = open("last_watered.txt", "a")
+        f.write("Pump {} OFF at {}".format(self.pump_id, datetime.datetime.now()))
+        f.close()
+        GPIO.output(self.control_pin, GPIO.LOW)
+        self.consecutive_water_count = 0
 
 # Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
 # Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
-# When sensor reports 0 it's dry, 1 is wet
 
-def setup_all():
-    setup_one(8, 7)
-    setup_one(29, 18)
-    setup_one(31, 36)
-    setup_one(33, 37)
+# Only set up first pump system at this point
+system_1 = PumpSystem(1, 8, 7)
+
+# Later, can do:
+# pumps = [
+#     PumpSystem(1, 8, 7)
+#     PumpSystem(2, 29, 18)
+#     PumpSystem(3, 31, 36)
+#     PumpSystem(4, 33, 37)
+# ]
+
+
+GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
+
 
 def get_last_watered():
     try:
@@ -45,49 +77,26 @@ def get_last_watered():
         return "NEVER!"
 
 
-# Sensors
-      
-def get_status(pin):
-    return GPIO.input(pin)
-
 # Pump 1
     
-def auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8):
-    consecutive_water_count1 = 0
-    setup_all()
+def auto_water(system_x):
     print("Engage! Press CTRL+C to exit")
     try:
-        while 1 and consecutive_water_count1 < 10:
+        while 1 and system_x.consecutive_water_count < 10:
             time.sleep(delay)
-            wet1 = get_status1(pin = water_sensor_pin1) == 1
-            if not wet1:
-                if consecutive_water_count1 < 5:
-                    pump_on(1, pump_pin1)
-                consecutive_water_count1 += 1
-            if wet1:
-                if consecutive_water_count1 > 5:
-                    pump_off(1, pump_pin1)
-                consecutive_water_count1 -= 1
+            wet = system_x.get_status() == 1
+            if not wet:
+                if system_x.consecutive_water_count < 5:
+                    system_x.pump_on()
+            if wet:
+                if system_x.consecutive_water_count > 5:
+                    system_x.pump_off()
             else:
-                consecutive_water_count1 = 0
+                system_x.consecutive_water_count = 0
     except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
         GPIO.cleanup() # cleanup all GPI
 
-def pump_on(pump_id, control_pin):
-    f = open("last_watered.txt", "a")
-    f.write("Pump {} ON at {}".format(pump_id, datetime.datetime.now()))
-    f.close()
-    GPIO.output(control_pin, GPIO.HIGH)
-    time.sleep(1)
-
-def pump_off(pump_id, control_pin):
-    f = open("last_watered.txt", "a")
-    f.write("Pump {} OFF at {}".format(pump_id, datetime.datetime.now()))
-    f.close()
-    GPIO.output(pump_id, control_pin, GPIO.LOW)
-    time.sleep(1)
-
 def main():
-	auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8)
+    auto_water(system_1)
 
 main()
