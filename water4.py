@@ -52,7 +52,7 @@ def get_last_watered():
     
 def auto_water(system_x):
     print("Engage! Press CTRL+C to exit")
-	delay = 1
+    delay = 1
     try:
         while 1 and system_x.consecutive_water_count < 10:
             time.sleep(delay)
