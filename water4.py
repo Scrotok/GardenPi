@@ -52,19 +52,17 @@ def get_last_watered():
     
 def auto_water(system_x):
     print("Engage! Press CTRL+C to exit")
-    delay = 1
+    delay = 2
     try:
-        while 1 and system_x.consecutive_water_count < 10:
+        while True:
             time.sleep(delay)
             wet = system_x.get_status() == 1
             if not wet:
                 if system_x.consecutive_water_count < 5:
                     system_x.pump_on()
-            if wet:
+            else:
                 if system_x.consecutive_water_count > 5:
                     system_x.pump_off()
-            else:
-                system_x.consecutive_water_count = 0
     except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
         GPIO.cleanup() # cleanup all GPI
 
