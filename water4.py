@@ -64,20 +64,13 @@ def get_last_watered():
 # Pump 1
     
 def auto_water(system_x):
-    print("Engage! Press CTRL+C to exit")
-    delay = 2
-    try:
-        while True:
-            time.sleep(delay)
-            wet = system_x.get_status() == 1
-            if not wet:
-                if system_x.consecutive_water_count < 5:
-                    system_x.pump_on()
-            else:
-                if system_x.consecutive_water_count > 5:
-                    system_x.pump_off()
-    except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
-        GPIO.cleanup() # cleanup all GPI
+    wet = system_x.get_status() == 1
+    if not wet:
+        if system_x.consecutive_water_count < 5:
+            system_x.pump_on()
+    else:
+        if system_x.consecutive_water_count > 5:
+            system_x.pump_off()
 
 def main():
     # Must be run before any other GPIO calls
@@ -97,7 +90,14 @@ def main():
     #     PumpSystem(4, 33, 37)
     # ]
 
-    auto_water(system_1)
+    print("Engage! Press CTRL+C to exit")
+    delay = 2
+    try:
+        while True:
+            auto_water(system_1)
+            time.sleep(delay)
+    except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
+        GPIO.cleanup() # cleanup all GPI
 
 
 main()
