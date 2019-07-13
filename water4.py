@@ -24,13 +24,6 @@ def setup_all():
     setup_one(29, 18)
     setup_one(31, 36)
     setup_one(33, 37)
-	
- def pump_id():
-    pump_pin1(pin = 7)
-    pump_pin2(pin = 18)
-    pump_pin3(pin = 36)
-    pump_pin4(pin = 37)
-    return GPIO.output(pin)
 
 def get_last_watered():
     try:
@@ -42,33 +35,38 @@ def get_last_watered():
 
 # Sensors
       
-def get_status_all():
-    get_status(pin =8)
-    get_status(pin = 29)
-    get_status(pin = 31)
-    get_status(pin = 33)
+def get_status1(pin = 8):
+    return GPIO.input(pin)
+
+def get_status2(pin = 29):
+    return GPIO.input(pin)
+
+def get_status3(pin = 31):
+    return GPIO.input(pin)
+
+def get_status4(pin = 33):
     return GPIO.input(pin)
 
 # Pump 1
     
-def auto_water(delay = 1, pump_id, get_status_all):
+def auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8):
     consecutive_water_count1 = 0
     setup_all()
     print("Engage! Press CTRL+C to exit")
     try:
-        while 1 and consecutive_water_count < 10:
+        while 1 and consecutive_water_count1 < 10:
             time.sleep(delay)
-            wet = get_status_all == 1
-            if not wet:
-                if consecutive_water_count < 5:
-                    pump_on(1, pump_id)
-                consecutive_water_count += 1
-            if wet:
-                if consecutive_water_count > 5:
-                    pump_off(1, pump_id)
-                consecutive_water_count -= 1
+            wet1 = get_status1(pin = water_sensor_pin1) == 1
+            if not wet1:
+                if consecutive_water_count1 < 5:
+                    pump_on(1, pump_pin1)
+                consecutive_water_count1 += 1
+            if wet1:
+                if consecutive_water_count1 > 5:
+                    pump_off(1, pump_pin1)
+                consecutive_water_count1 -= 1
             else:
-                consecutive_water_count = 0
+                consecutive_water_count1 = 0
     except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
         GPIO.cleanup() # cleanup all GPI
 
@@ -87,6 +85,6 @@ def pump_off(pump_id, control_pin):
     time.sleep(1)
 
 def main():
-#	auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8)
-        auto_water(delay = 1, pump_id, get_status_all)
+	auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8)
+
 main()
