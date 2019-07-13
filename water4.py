@@ -14,6 +14,7 @@ class PumpSystem(object):
         self.sensor_pin = sensor_pin
         self.control_pin = control_pin
         self.consecutive_water_count = 0
+        self.is_pumping = False
 
         # Setup I/Os
         GPIO.setup(sensor_pin, GPIO.IN)
@@ -22,21 +23,33 @@ class PumpSystem(object):
         GPIO.output(control_pin, GPIO.LOW)
 
     def get_status(self):
-        return GPIO.input(self.sensor_pin)
+        wet = GPIO.input(self.sensor_pin)
+        print('Read status:', wet)
+        return wet
 
     def pump_on(self):
+        if self.is_pumping:
+            # Pump is already on; nothing to do
+            return
+
         f = open("last_watered.txt", "a")
         f.write("Pump {} ON at {}".format(self.pump_id, datetime.datetime.now()))
         f.close()
         GPIO.output(self.control_pin, GPIO.HIGH)
         self.consecutive_water_count += 1
+        self.is_pumping = True
 
     def pump_off(self):
+        if not self.is_pumping:
+            # Pump is already off; nothing to do
+            return
+
         f = open("last_watered.txt", "a")
         f.write("Pump {} OFF at {}".format(self.pump_id, datetime.datetime.now()))
         f.close()
         GPIO.output(self.control_pin, GPIO.LOW)
         self.consecutive_water_count = 0
+        self.is_pumping = False
 
 # ------------------------- End of class PumpSystem -------------------------
 
@@ -52,19 +65,17 @@ def get_last_watered():
     
 def auto_water(system_x):
     print("Engage! Press CTRL+C to exit")
-    delay = 1
+    delay = 2
     try:
-        while 1 and system_x.consecutive_water_count < 10:
+        while True:
             time.sleep(delay)
             wet = system_x.get_status() == 1
             if not wet:
                 if system_x.consecutive_water_count < 5:
                     system_x.pump_on()
-            if wet:
+            else:
                 if system_x.consecutive_water_count > 5:
                     system_x.pump_off()
-            else:
-                system_x.consecutive_water_count = 0
     except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
         GPIO.cleanup() # cleanup all GPI
 
