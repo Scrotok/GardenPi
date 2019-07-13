@@ -1,21 +1,8 @@
 
-# External module imp
+# External module imports
 import RPi.GPIO as GPIO
 import datetime
 import time
-
-# Constants
-
-pump1=7
-pump2=18
-pump3=36
-pump4=37
-sensor1=8
-sensor2=29
-sensor3=31
-sensor4=33
-
-init = False
 
 # There will be one instance of PumpSystem for each pair of
 # sensor and control pins, and each instance contains the
