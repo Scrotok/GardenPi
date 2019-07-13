@@ -68,22 +68,22 @@ def auto_water(system_x):
         GPIO.cleanup() # cleanup all GPI
 
 def main():
-	# Must be run before any other GPIO calls
-	GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
+    # Must be run before any other GPIO calls
+    GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
 
-	# Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
-	# Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
+    # Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
+    # Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
 
-	# Only set up first pump system at this point
-	system_1 = PumpSystem(1, 8, 7)
+    # Only set up first pump system at this point
+    system_1 = PumpSystem(1, 8, 7)
 
-	# Later, can do:
-	# pumps = [
-	#     PumpSystem(1, 8, 7)
-	#     PumpSystem(2, 29, 18)
-	#     PumpSystem(3, 31, 36)
-	#     PumpSystem(4, 33, 37)
-	# ]
+    # Later, can do:
+    # pumps = [
+    #     PumpSystem(1, 8, 7)
+    #     PumpSystem(2, 29, 18)
+    #     PumpSystem(3, 31, 36)
+    #     PumpSystem(4, 33, 37)
+    # ]
 
     auto_water(system_1)
 
