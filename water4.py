@@ -1,21 +1,8 @@
 
-# External module imp
+# External module imports
 import RPi.GPIO as GPIO
 import datetime
 import time
-
-# Constants
-
-pump1=7
-pump2=18
-pump3=36
-pump4=37
-sensor1=8
-sensor2=29
-sensor3=31
-sensor4=33
-
-init = False
 
 # There will be one instance of PumpSystem for each pair of
 # sensor and control pins, and each instance contains the
@@ -51,23 +38,7 @@ class PumpSystem(object):
         GPIO.output(self.control_pin, GPIO.LOW)
         self.consecutive_water_count = 0
 
-# Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
-# Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
-
-# Only set up first pump system at this point
-system_1 = PumpSystem(1, 8, 7)
-
-# Later, can do:
-# pumps = [
-#     PumpSystem(1, 8, 7)
-#     PumpSystem(2, 29, 18)
-#     PumpSystem(3, 31, 36)
-#     PumpSystem(4, 33, 37)
-# ]
-
-
-GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
-
+# ------------------------- End of class PumpSystem -------------------------
 
 def get_last_watered():
     try:
@@ -97,6 +68,24 @@ def auto_water(system_x):
         GPIO.cleanup() # cleanup all GPI
 
 def main():
+	# Must be run before any other GPIO calls
+	GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
+
+	# Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
+	# Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
+
+	# Only set up first pump system at this point
+	system_1 = PumpSystem(1, 8, 7)
+
+	# Later, can do:
+	# pumps = [
+	#     PumpSystem(1, 8, 7)
+	#     PumpSystem(2, 29, 18)
+	#     PumpSystem(3, 31, 36)
+	#     PumpSystem(4, 33, 37)
+	# ]
+
     auto_water(system_1)
+
 
 main()
