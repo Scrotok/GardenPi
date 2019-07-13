@@ -6,10 +6,10 @@ import time
 
 # Constants
 
-pump1=8
-pump2=29
-pump3=31
-pump4=33
+pump1=7
+pump2=18
+pump3=36
+pump4=37
 sensor1=8
 sensor2=29
 sensor3=31
