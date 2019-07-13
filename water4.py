@@ -4,6 +4,17 @@ import RPi.GPIO as GPIO
 import datetime
 import time
 
+# Constants
+
+pump1=8
+pump2=29
+pump3=31
+pump4=33
+sensor1=8
+sensor2=29
+sensor3=31
+sensor4=33
+
 init = False
 
 GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
@@ -18,6 +29,7 @@ def setup_one(sensor_pin, control_pin):
 
 # Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
 # Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
+# When sensor reports 0 it's dry, 1 is wet
 
 def setup_all():
     setup_one(8, 7)
@@ -35,16 +47,7 @@ def get_last_watered():
 
 # Sensors
       
-def get_status1(pin = 8):
-    return GPIO.input(pin)
-
-def get_status2(pin = 29):
-    return GPIO.input(pin)
-
-def get_status3(pin = 31):
-    return GPIO.input(pin)
-
-def get_status4(pin = 33):
+def get_status(pin):
     return GPIO.input(pin)
 
 # Pump 1
