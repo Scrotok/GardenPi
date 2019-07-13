@@ -8,6 +8,23 @@ init = False
 
 GPIO.setmode(GPIO.BOARD) # Broadcom pin-numbering scheme
 
+# Configures one sensor and one control pin.
+# Output LOW on the control pin so the pump native state is OFF
+
+def setup_one(sensor_pin, control_pin):
+    GPIO.setup(sensor_pin, GPIO.IN)
+    GPIO.setup(control_pin, GPIO.OUT)
+    GPIO.output(control_pin, GPIO.LOW)
+
+# Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
+# Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
+
+def setup_all():
+    setup_one(8, 7)
+    setup_one(29, 18)
+    setup_one(31, 36)
+    setup_one(33, 37)
+
 def get_last_watered():
     try:
         f = open("last_watered.txt", "r")
@@ -15,37 +32,26 @@ def get_last_watered():
     except:
         return "NEVER!"
 
-# Pump pins are 7, 18, 36 and 37 - 5v shared from pin 3
-# Sensor pins are 8, 29, 31 and 33 - 5v shared from pin 1
 
 # Sensors
       
 def get_status1(pin = 8):
-    GPIO.setup(pin, GPIO.IN) 
     return GPIO.input(pin)
 
 def get_status2(pin = 29):
-    GPIO.setup(pin, GPIO.IN) 
     return GPIO.input(pin)
 
 def get_status3(pin = 31):
-    GPIO.setup(pin, GPIO.IN) 
     return GPIO.input(pin)
 
 def get_status4(pin = 33):
-    GPIO.setup(pin, GPIO.IN) 
     return GPIO.input(pin)
-
-def init_output(pin):
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.LOW)
-    GPIO.output(pin, GPIO.HIGH)
 
 # Pump 1
     
 def auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8):
     consecutive_water_count1 = 0
-    init_output(pump_pin1)
+    setup_all()
     print("Engage! Press CTRL+C to exit")
     try:
         while 1 and consecutive_water_count1 < 10:
