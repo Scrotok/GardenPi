@@ -59,31 +59,32 @@ def auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8):
             wet1 = get_status1(pin = water_sensor_pin1) == 1
             if not wet1:
                 if consecutive_water_count1 < 5:
-                    pump_on1(pump_pin1, 1)
+                    pump_on(1, pump_pin1)
                 consecutive_water_count1 += 1
             if wet1:
                 if consecutive_water_count1 > 5:
-                    pump_off1(pump_pin1, 0)
+                    pump_off(1, pump_pin1)
                 consecutive_water_count1 -= 1
             else:
                 consecutive_water_count1 = 0
     except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
         GPIO.cleanup() # cleanup all GPI
 
-def pump_on1(pump_pin1 = 7, delay = 1):
-    init_output(pump_pin1)
-    f = open("last_watered.txt", "w")
-    f.write("Last watered1 {}".format(datetime.datetime.now()))
+def pump_on(pump_id, control_pin):
+    f = open("last_watered.txt", "a")
+    f.write("Pump {} ON at {}".format(pump_id, datetime.datetime.now()))
     f.close()
-    GPIO.output(pump_pin1, GPIO.HIGH)
+    GPIO.output(control_pin, GPIO.HIGH)
     time.sleep(1)
-    GPIO.output(pump_pin1, GPIO.LOW)
 
-def pump_off1(pump_pin1 = 7, delay = 1):
-    init_output(pump_pin1)
-    f = open("last_watered.txt", "w")
-    f.write("Last watered1 {}".format(datetime.datetime.now()))
+def pump_off(pump_id, control_pin):
+    f = open("last_watered.txt", "a")
+    f.write("Pump {} OFF at {}".format(pump_id, datetime.datetime.now()))
     f.close()
-    GPIO.output(pump_pin1, GPIO.HIGH)
+    GPIO.output(pump_id, control_pin, GPIO.LOW)
     time.sleep(1)
-    GPIO.output(pump_pin1, GPIO.LOW)
+
+def main():
+	auto_water(delay = 1, pump_pin1 = 7, water_sensor_pin1 = 8)
+
+main()
