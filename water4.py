@@ -21,9 +21,9 @@ def setup_one(sensor_pin, control_pin):
 
 def setup_all():
     setup_one(8, 7)
-    setup_two(29, 18)
-    setup_three(31, 36)
-    setup_four(33, 37)
+    setup_one(29, 18)
+    setup_one(31, 36)
+    setup_one(33, 37)
 	
 # def pump_id():
 #    pump_pin1(pin = 7)
